@@ -1,0 +1,16 @@
+[project]
+name = "fastrapi"
+version = "0.1.0"
+description = "Framework Python no estilo FastAPI: núcleo ASGI pequeno, rotas e servidor inclusos."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Gabriel Teramae" }]
+dependencies = []
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["fastrapi*"]
