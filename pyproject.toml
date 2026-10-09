@@ -4,7 +4,6 @@ version = "0.1.0"
 description = "Framework Python no estilo FastAPI: núcleo ASGI pequeno, rotas e servidor inclusos."
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "MIT" }
 authors = [{ name = "Gabriel Teramae" }]
 dependencies = []
 
