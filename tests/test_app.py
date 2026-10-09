@@ -50,10 +50,42 @@ class AppTests(unittest.TestCase):
     def test_missing(self):
         self.assertEqual(self.client.get("/nope").status_code, 404)
 
+    def test_invalid_json_is_400(self):
+        response = self.client.request("POST", "/echo", raw=b"{")
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["detail"], "JSON inválido")
+
     def test_error_is_json(self):
         response = self.client.get("/boom")
         self.assertEqual(response.status_code, 500)
         self.assertIn("quebrou", response.json()["detail"])
+
+    def test_bad_content_length(self):
+        app = build()
+
+        async def main():
+            server = await asyncio.start_server(lambda r, w: _client(app, r, w), "127.0.0.1", 0)
+            port = server.sockets[0].getsockname()[1]
+
+            def hit():
+                req = urllib.request.Request(
+                    f"http://127.0.0.1:{port}/echo",
+                    data=b"{",
+                    method="POST",
+                    headers={"Content-Length": "nope"},
+                )
+                try:
+                    with urllib.request.urlopen(req) as res:
+                        return res.status
+                except urllib.error.HTTPError as exc:
+                    return exc.code
+
+            status = await asyncio.to_thread(hit)
+            server.close()
+            await server.wait_closed()
+            return status
+
+        self.assertEqual(asyncio.run(main()), 400)
 
     def test_http_server(self):
         app = build()

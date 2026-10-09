@@ -21,9 +21,16 @@ async def _client(app: FastrAPI, reader: asyncio.StreamReader, writer: asyncio.S
             name, _, value = line.decode("latin1").partition(":")
             headers.append((name.strip().lower().encode(), value.strip().encode()))
         length = 0
-        for name, value in headers:
-            if name == b"content-length":
-                length = int(value)
+        try:
+            for name, value in headers:
+                if name == b"content-length":
+                    length = int(value)
+            if length < 0:
+                raise ValueError(length)
+        except ValueError:
+            writer.write(b"HTTP/1.1 400 Error\r\ncontent-length: 0\r\nconnection: close\r\n\r\n")
+            await writer.drain()
+            return
         body = await reader.readexactly(length) if length else b""
         messages: list[dict[str, Any]] = []
 
