@@ -124,6 +124,8 @@ class FastrAPI:
                 if inspect.isawaitable(result):
                     result = await result
                 response = _coerce(result)
+            except json.JSONDecodeError:
+                response = JSONResponse({"detail": "JSON inválido"}, 400)
             except Exception as exc:  # noqa: BLE001 — vira JSON 500, sem stack no cliente
                 response = JSONResponse({"detail": str(exc)}, 500)
             await _send(send, response)

@@ -21,9 +21,12 @@ class TestClient:
     def __init__(self, app: FastrAPI):
         self.app = app
 
-    def request(self, method: str, path: str, json_body: Any = None) -> Response:
+    def request(self, method: str, path: str, json_body: Any = None, raw: bytes | None = None) -> Response:
         raw_path, _, query = path.partition("?")
-        body = b"" if json_body is None else json.dumps(json_body).encode()
+        if raw is not None:
+            body = raw
+        else:
+            body = b"" if json_body is None else json.dumps(json_body).encode()
         sent: dict[str, Any] = {}
 
         async def receive() -> dict[str, Any]:
